@@ -6,6 +6,9 @@ WIDTH, HEIGHT= 1000, 500
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Electric Football")
 
+BG= pygame.image.load("electric_field.svg")
+
+
 def main():
     run = True
     while run:
@@ -18,5 +21,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-// testing
