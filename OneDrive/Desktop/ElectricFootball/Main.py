@@ -2,12 +2,15 @@ import pygame
 import time
 import random
 
-WIDTH, HEIGHT= 1000, 500
+WIDTH, HEIGHT= 1200, 550
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Electric Football")
 
-BG= pygame.image.load("electric_field.svg")
+BG= pygame.transform.scale(pygame.image.load("g558.jpg"), (WIDTH, HEIGHT))
 
+def draw():
+    WIN.blit(BG, (0, 0))
+    pygame.display.update()
 
 def main():
     run = True
@@ -16,6 +19,8 @@ def main():
             if event.type== pygame.QUIT:
                 run = False
                 break
+
+        draw()
 
     pygame.quit()
 
