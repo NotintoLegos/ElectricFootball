@@ -1,19 +1,18 @@
 import pygame
-import array as arr
 
 class Player:
 
-    PLAYER_WIDTH= 20
-    PLAYER_HEIGHT= 20
+    PLAYER_DIMENTIONS= 25
 
-    player_maker= pygame.Rect(600, 0)
-
-
-    offense= []
-    defense= []
-
-    for i in range (11):
+    TEST_LOCATION= 200
 
 
-    for i in range (11):
-        d_player= pygame.Rect(550, i+20)
+    def player_maker():
+        player1= pygame.Rect(
+            Player.TEST_LOCATION, 
+            Player.TEST_LOCATION, 
+            Player.PLAYER_DIMENTIONS, 
+            Player.PLAYER_DIMENTIONS
+            )
+    def drawPlayer(player1):
+        pygame.draw.rect()
