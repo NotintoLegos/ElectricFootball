@@ -29,8 +29,7 @@ def main():
     run = True
     clock= pygame.time.Clock()
 
-    player1= Player(200, HEIGHT-BALL_H, BALL_W, BALL_H, "blue")
-    #ball_carrier= Player(300, HEIGHT-BALL_H, BALL_W, BALL_H, "brown")
+    player1= Player(200, HEIGHT-BALL_H, BALL_W, BALL_H, "brown")
 
     start_time= time.time()
     elapsed_time= 0
@@ -48,7 +47,6 @@ def main():
         player1.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
 
         draw(WIN, [player1], elapsed_time)
-        #ball_carrier.move_randomly()
 
     pygame.quit()
 
