@@ -2,10 +2,9 @@ import pygame
 
 class Lines:
 
-    LINE_HEIGHT= 550
-    LINE_WIDTH= 5
-
-    FIRST_DOWN_COLOR= "yellow"
-    LINE_OF_SCRIMAGE_COLOT= "BLUE"
-
+    def __init__(self, x, y, width, height, color):
+        self.rect= pygame.Rect(x, y, width, height)
+        self.color= color
     
+    def draw(self, window):
+        pygame.draw.rect(window, self.color, self.rect)
