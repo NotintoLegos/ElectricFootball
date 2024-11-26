@@ -8,7 +8,7 @@ pygame.font.init()
 
 BALL_H, BALL_W= 10, 10
 WIDTH, HEIGHT= 1200, 550
-PLAYER_VEL= 2
+PLAYER_VEL= 1
 VELOCITY_LINEMEN= 1
 
 SCRIMMAGE_WIDTH= 3
@@ -70,9 +70,9 @@ def main():
                 run = False
                 break
                 
-        keys= pygame.key.get_pressed()
-        player1.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
-        player2.movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE)
+#        keys= pygame.key.get_pressed()
+        player1.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, OFFENSE_ON_LINE_SETUP, Y_VALUE)
+        player2.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE)
 
         draw(WIN, [player1, player2], [line_scrimmage, first_down_line, goal_line_left, goal_line_right], elapsed_time)
 

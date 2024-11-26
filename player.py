@@ -21,8 +21,20 @@ class Player:
         if keys[pygame.K_UP] and self.rect.y - player_vel >=0:
             self.rect.y -= player_vel
 
-    def movement_linemen(self, slow_velocity, width, height, dx, dy):
-        directions= [(slow_velocity, 0), (-slow_velocity, 0), (0, slow_velocity), (0, -slow_velocity)]
+
+#defense movements, linemen, DBs, linebackers
+    def defensive_movement_linemen(self, slow_velocity, width, height, dx, dy):
+        directions= [(slow_velocity, 0), (0, 0), (0, slow_velocity), (0, -slow_velocity)]
+        dx, dy= random.choice(directions)
+        if 0 <= self.rect.x + dx <= width - self.rect.width:
+            self.rect.x += dx
+        if 0 <= self.rect.y + dy <= height - self.rect.height:
+            self.rect.y += dy
+
+            
+#offense movements
+    def offensive_movement_linemen(self, slow_velocity, width, height, dx, dy):
+        directions= [(0, 0), (-slow_velocity, 0), (0, slow_velocity), (0, -slow_velocity)]
         dx, dy= random.choice(directions)
         if 0 <= self.rect.x + dx <= width - self.rect.width:
             self.rect.x += dx
