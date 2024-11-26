@@ -15,6 +15,9 @@ SCRIMMAGE_WIDTH= 3
 SCRIMMAGE_HEIGHT= HEIGHT
 SCRIMMAGE_PLACEMENT= WIDTH
 
+OFFENSE_COLOR= "blue"
+DEFENSE_COLOR= "red"
+
 #testing at random location 550
 # x value when tackled to set scrimmage placement
 SCRIMMAGE_PLACEMENT= 550
@@ -26,6 +29,10 @@ OFFENSE_ON_LINE_SETUP= SCRIMMAGE_PLACEMENT + 5
 
 # y value when tackle to decide start or ball placement, 300 set for testing
 Y_VALUE= 300
+GUARD_SET_TOP= Y_VALUE + 20
+GUARD_SET_BOTTOM= Y_VALUE - 20
+TACKLE_SET_TOP= GUARD_SET_TOP + 20
+TACKLE_SET_BOTTOM= GUARD_SET_BOTTOM - 20
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Electric Football")
@@ -51,12 +58,25 @@ def main():
     clock= pygame.time.Clock()
 
 # object creation, don't know if I should make a factory since its max of 22 players
-    player1= Player(OFFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, "brown")
-    player2= Player(DEFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, "teal")
-    line_scrimmage= Lines(SCRIMMAGE_PLACEMENT, 0, SCRIMMAGE_WIDTH, SCRIMMAGE_HEIGHT, "blue")
-    first_down_line= Lines(FIRST_DOWN_DISTANCE, 0, 3, 550, "yellow")
-    goal_line_left= Lines(97, 0, 3, 550, "white")
-    goal_line_right= Lines(1100, 0, 3, 550, "white")
+    o_line = [
+        Player(OFFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR),
+        Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR),
+        Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_BOTTOM, BALL_W, BALL_H, OFFENSE_COLOR),
+        Player(OFFENSE_ON_LINE_SETUP, TACKLE_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR),
+        Player(OFFENSE_ON_LINE_SETUP, TACKLE_SET_BOTTOM, BALL_W, BALL_H, OFFENSE_COLOR)
+    ]
+    
+    d_line= [
+        Player(DEFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, DEFENSE_COLOR)
+    ]
+
+    lines= [
+        Lines(SCRIMMAGE_PLACEMENT, 0, SCRIMMAGE_WIDTH, SCRIMMAGE_HEIGHT, "blue"),
+        Lines(FIRST_DOWN_DISTANCE, 0, 3, 550, "yellow"),
+        Lines(97, 0, 3, 550, "white"),
+        Lines(1100, 0, 3, 550, "white")
+    ]
+    
 
     start_time= time.time()
     elapsed_time= 0
@@ -70,11 +90,13 @@ def main():
                 run = False
                 break
                 
-#        keys= pygame.key.get_pressed()
-        player1.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, OFFENSE_ON_LINE_SETUP, Y_VALUE)
-        player2.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE)
+        for guy in o_line:
+            guy.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, OFFENSE_ON_LINE_SETUP, Y_VALUE)
 
-        draw(WIN, [player1, player2], [line_scrimmage, first_down_line, goal_line_left, goal_line_right], elapsed_time)
+        for guy in d_line:
+            guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE)
+
+        draw(WIN, o_line + d_line, lines, elapsed_time)
 
     pygame.quit()
 
