@@ -6,7 +6,7 @@ from lines import Lines
 
 pygame.font.init()
 
-BALL_H, BALL_W= 10, 10
+BALL_H, BALL_W= 12, 12
 WIDTH, HEIGHT= 1200, 550
 PLAYER_VEL= 1
 VELOCITY_LINEMEN= 1
@@ -67,7 +67,10 @@ def main():
     ]
     
     d_line= [
-        Player(DEFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, DEFENSE_COLOR)
+        Player(DEFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, DEFENSE_COLOR),
+        Player(DEFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, DEFENSE_COLOR),
+        Player(DEFENSE_ON_LINE_SETUP, GUARD_SET_BOTTOM, BALL_W, BALL_H, DEFENSE_COLOR)
+
     ]
 
     lines= [
@@ -91,10 +94,10 @@ def main():
                 break
                 
         for guy in o_line:
-            guy.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, OFFENSE_ON_LINE_SETUP, Y_VALUE)
+            guy.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, OFFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line)
 
         for guy in d_line:
-            guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE)
+            guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line)
 
         draw(WIN, o_line + d_line, lines, elapsed_time)
 

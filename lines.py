@@ -8,3 +8,4 @@ class Lines:
     
     def draw(self, window):
         pygame.draw.rect(window, self.color, self.rect)
+
