@@ -62,7 +62,7 @@ def main():
     elapsed_time= 0
 
     while run:
-        clock.tick(60)
+        clock.tick(30)
         elapsed_time= time.time() - start_time
 
         for event in pygame.event.get():
