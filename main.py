@@ -26,6 +26,7 @@ FIRST_DOWN_DISTANCE= SCRIMMAGE_PLACEMENT-100
 #to set players off the line slightly since line width is 3
 DEFENSE_ON_LINE_SETUP= SCRIMMAGE_PLACEMENT - 12
 OFFENSE_ON_LINE_SETUP= SCRIMMAGE_PLACEMENT + 5
+QB_SETUP= SCRIMMAGE_PLACEMENT + 20
 
 # y value when tackle to decide start or ball placement, 300 set for testing
 Y_VALUE= 300
@@ -58,6 +59,11 @@ def main():
     clock= pygame.time.Clock()
 
 # object creation, don't know if I should make a factory since its max of 22 players
+
+    qb= [
+        Player(QB_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR)
+    ]
+
     o_line = [
         Player(OFFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR),
         Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR),
@@ -94,12 +100,14 @@ def main():
                 break
                 
         for guy in o_line:
-            guy.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, OFFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line)
+            guy.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, OFFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line+ qb)
 
         for guy in d_line:
-            guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line)
+            guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line+ qb)
 
-        draw(WIN, o_line + d_line, lines, elapsed_time)
+        qb[0].qb_movement(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line + qb)
+
+        draw(WIN, o_line + d_line + qb, lines, elapsed_time)
 
     pygame.quit()
 

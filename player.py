@@ -52,3 +52,18 @@ class Player:
             self.rect.x = new_rect.x
         if 0 <= new_rect.y <= height - self.rect.height:
             self.rect.y = new_rect.y
+
+    def qb_movement(self, slow_velocity, width, height, dx, dy, other_players):
+        directions= [(slow_velocity, 0), (-slow_velocity, 0), (0, slow_velocity), (0, -slow_velocity)]
+        dx, dy= random.choice(directions)
+
+        new_rect= self.rect.move(dx, dy)
+
+        if any(new_rect.colliderect(player.rect) for player in other_players if player != self):
+            self.color= "black"
+            return
+        
+        if 0 <= new_rect.x <= width - self.rect.width:
+            self.rect.x = new_rect.x
+        if 0 <= new_rect.y <= height - self.rect.height:
+            self.rect.y = new_rect.y
