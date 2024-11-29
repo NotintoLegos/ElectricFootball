@@ -18,6 +18,10 @@ SCRIMMAGE_PLACEMENT= WIDTH
 OFFENSE_COLOR= "blue"
 DEFENSE_COLOR= "red"
 
+# boolean for ball carrier
+BALL_CARRIER= True
+NOT_BALL_CARRIER= False
+
 #testing at random location 550
 # x value when tackled to set scrimmage placement
 SCRIMMAGE_PLACEMENT= 550
@@ -61,21 +65,21 @@ def main():
 # object creation, don't know if I should make a factory since its max of 22 players
 
     qb= [
-        Player(QB_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR, "offense")
+        Player(QB_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR, "offense", BALL_CARRIER)
     ]
 
     o_line = [
-        Player(OFFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR, "offense"),
-        Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR, "offense"),
-        Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_BOTTOM, BALL_W, BALL_H, OFFENSE_COLOR, "offense"),
-        Player(OFFENSE_ON_LINE_SETUP, TACKLE_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR, "offense"),
-        Player(OFFENSE_ON_LINE_SETUP, TACKLE_SET_BOTTOM, BALL_W, BALL_H, OFFENSE_COLOR, "offense")
+        Player(OFFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR, "offense", NOT_BALL_CARRIER),
+        Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR, "offense", NOT_BALL_CARRIER),
+        Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_BOTTOM, BALL_W, BALL_H, OFFENSE_COLOR, "offense", NOT_BALL_CARRIER),
+        Player(OFFENSE_ON_LINE_SETUP, TACKLE_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR, "offense", NOT_BALL_CARRIER),
+        Player(OFFENSE_ON_LINE_SETUP, TACKLE_SET_BOTTOM, BALL_W, BALL_H, OFFENSE_COLOR, "offense", NOT_BALL_CARRIER)
     ]
     
     d_line= [
-        Player(DEFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, DEFENSE_COLOR, "defense"),
-        Player(DEFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, DEFENSE_COLOR, "defense"),
-        Player(DEFENSE_ON_LINE_SETUP, GUARD_SET_BOTTOM, BALL_W, BALL_H, DEFENSE_COLOR, "defense")
+        Player(DEFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, DEFENSE_COLOR, "defense", NOT_BALL_CARRIER),
+        Player(DEFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, DEFENSE_COLOR, "defense", NOT_BALL_CARRIER),
+        Player(DEFENSE_ON_LINE_SETUP, GUARD_SET_BOTTOM, BALL_W, BALL_H, DEFENSE_COLOR, "defense", NOT_BALL_CARRIER)
 
     ]
 
@@ -106,6 +110,11 @@ def main():
             guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line+ qb)
 
         qb[0].qb_movement(PLAYER_VEL, WIDTH, HEIGHT, o_line + d_line + qb)
+
+        for player in qb:
+            if player.tackle(d_line):
+                print("player tackled. play stopped")
+                run= False
 
         draw(WIN, o_line + d_line + qb, lines, elapsed_time)
 

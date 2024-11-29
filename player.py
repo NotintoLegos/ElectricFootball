@@ -4,11 +4,12 @@ import random
 
 class Player:
 
-    def __init__(self, x, y, width, height, color, team):
+    def __init__(self, x, y, width, height, color, team, carrier):
         self.rect= pygame.Rect(x, y, width, height)
         self.color= color
         self.original_color= color
         self.team= team
+        self.carrier= carrier
 
     def draw(self, window):
         pygame.draw.rect(window, self.color, self.rect)
@@ -23,6 +24,14 @@ class Player:
         if keys[pygame.K_UP] and self.rect.y - player_vel >=0:
             self.rect.y -= player_vel
 
+# need tackle function for ball carriers
+    def tackle(self, other_players):
+        if self.carrier:
+            for player in other_players:
+                if player.team== "defense" and self.rect.colliderect(player.rect):
+                    self.color= "black"
+                    return True
+        return False
 
 #defense movements, linemen, DBs, linebackers
     def defensive_movement_linemen(self, slow_velocity, width, height, dx, dy, other_players):
@@ -54,7 +63,8 @@ class Player:
             self.rect.x = new_rect.x
         if 0 <= new_rect.y <= height - self.rect.height:
             self.rect.y = new_rect.y
-# qb is first ball carrier 
+
+# qb is first ball carrier
     def qb_movement(self, slow_velocity, width, height, other_players):
         directions= [(slow_velocity, 0), (-slow_velocity, 0), (0, slow_velocity), (0, -slow_velocity)]
         dx, dy= random.choice(directions)
@@ -62,10 +72,8 @@ class Player:
         new_rect= self.rect.move(dx, dy)
 
         for player in other_players:
-            if new_rect.colliderect(player.rect):
-                if player.team == "defense":  # Collides with defense
-                    self.color = "black"
-                return  # Stop movement on collision
+            if new_rect.colliderect(player.rect) and player != self:
+                return
 
         # Reset color if no collision with defense
         self.color = self.original_color
