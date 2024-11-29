@@ -111,10 +111,6 @@ def main():
 
         qb[0].qb_movement(PLAYER_VEL, WIDTH, HEIGHT, o_line + d_line + qb)
 
-        for player in qb:
-            if player.tackle(d_line):
-                print("player tackled. play stopped")
-                run= False
 
         draw(WIN, o_line + d_line + qb, lines, elapsed_time)
 

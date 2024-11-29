@@ -30,7 +30,7 @@ class Player:
             for player in other_players:
                 if player.team== "defense" and self.rect.colliderect(player.rect):
                     self.color= "black"
-                    return True
+                    return (self.rect.x, self.rect.y)
         return False
 
 #defense movements, linemen, DBs, linebackers
@@ -73,10 +73,13 @@ class Player:
 
         for player in other_players:
             if new_rect.colliderect(player.rect) and player != self:
-                return
-
-        # Reset color if no collision with defense
-        self.color = self.original_color
+                if player.team== "defense":
+                    tackle_pos= self.tackle(other_players)
+                    if tackle_pos:
+                        print(f"tackle occured at position: {tackle_pos}")
+                        return
+                elif player.team== "offense":
+                    return # to stop when in contact with offense
 
         if 0 <= new_rect.x <= width - self.rect.width:
             self.rect.x = new_rect.x
