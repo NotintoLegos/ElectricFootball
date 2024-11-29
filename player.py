@@ -4,9 +4,11 @@ import random
 
 class Player:
 
-    def __init__(self, x, y, width, height, color):
+    def __init__(self, x, y, width, height, color, team):
         self.rect= pygame.Rect(x, y, width, height)
         self.color= color
+        self.original_color= color
+        self.team= team
 
     def draw(self, window):
         pygame.draw.rect(window, self.color, self.rect)
@@ -52,17 +54,22 @@ class Player:
             self.rect.x = new_rect.x
         if 0 <= new_rect.y <= height - self.rect.height:
             self.rect.y = new_rect.y
-
-    def qb_movement(self, slow_velocity, width, height, dx, dy, other_players):
+# qb is first ball carrier 
+    def qb_movement(self, slow_velocity, width, height, other_players):
         directions= [(slow_velocity, 0), (-slow_velocity, 0), (0, slow_velocity), (0, -slow_velocity)]
         dx, dy= random.choice(directions)
 
         new_rect= self.rect.move(dx, dy)
 
-        if any(new_rect.colliderect(player.rect) for player in other_players if player != self):
-            self.color= "black"
-            return
-        
+        for player in other_players:
+            if new_rect.colliderect(player.rect):
+                if player.team == "defense":  # Collides with defense
+                    self.color = "black"
+                return  # Stop movement on collision
+
+        # Reset color if no collision with defense
+        self.color = self.original_color
+
         if 0 <= new_rect.x <= width - self.rect.width:
             self.rect.x = new_rect.x
         if 0 <= new_rect.y <= height - self.rect.height:

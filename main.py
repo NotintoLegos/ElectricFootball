@@ -8,7 +8,7 @@ pygame.font.init()
 
 BALL_H, BALL_W= 12, 12
 WIDTH, HEIGHT= 1200, 550
-PLAYER_VEL= 1
+PLAYER_VEL= 2
 VELOCITY_LINEMEN= 1
 
 SCRIMMAGE_WIDTH= 3
@@ -61,21 +61,21 @@ def main():
 # object creation, don't know if I should make a factory since its max of 22 players
 
     qb= [
-        Player(QB_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR)
+        Player(QB_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR, "offense")
     ]
 
     o_line = [
-        Player(OFFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR),
-        Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR),
-        Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_BOTTOM, BALL_W, BALL_H, OFFENSE_COLOR),
-        Player(OFFENSE_ON_LINE_SETUP, TACKLE_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR),
-        Player(OFFENSE_ON_LINE_SETUP, TACKLE_SET_BOTTOM, BALL_W, BALL_H, OFFENSE_COLOR)
+        Player(OFFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, OFFENSE_COLOR, "offense"),
+        Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR, "offense"),
+        Player(OFFENSE_ON_LINE_SETUP, GUARD_SET_BOTTOM, BALL_W, BALL_H, OFFENSE_COLOR, "offense"),
+        Player(OFFENSE_ON_LINE_SETUP, TACKLE_SET_TOP, BALL_W, BALL_H, OFFENSE_COLOR, "offense"),
+        Player(OFFENSE_ON_LINE_SETUP, TACKLE_SET_BOTTOM, BALL_W, BALL_H, OFFENSE_COLOR, "offense")
     ]
     
     d_line= [
-        Player(DEFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, DEFENSE_COLOR),
-        Player(DEFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, DEFENSE_COLOR),
-        Player(DEFENSE_ON_LINE_SETUP, GUARD_SET_BOTTOM, BALL_W, BALL_H, DEFENSE_COLOR)
+        Player(DEFENSE_ON_LINE_SETUP, Y_VALUE, BALL_W, BALL_H, DEFENSE_COLOR, "defense"),
+        Player(DEFENSE_ON_LINE_SETUP, GUARD_SET_TOP, BALL_W, BALL_H, DEFENSE_COLOR, "defense"),
+        Player(DEFENSE_ON_LINE_SETUP, GUARD_SET_BOTTOM, BALL_W, BALL_H, DEFENSE_COLOR, "defense")
 
     ]
 
@@ -105,7 +105,7 @@ def main():
         for guy in d_line:
             guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line+ qb)
 
-        qb[0].qb_movement(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line + qb)
+        qb[0].qb_movement(PLAYER_VEL, WIDTH, HEIGHT, o_line + d_line + qb)
 
         draw(WIN, o_line + d_line + qb, lines, elapsed_time)
 
