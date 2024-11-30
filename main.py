@@ -62,7 +62,7 @@ def reset_position(qb, o_line, d_line, scrimmage_placement, y_value):
     qb[0].rect.x= scrimmage_placement + 20
     qb[0].rect.y = y_value
 
-    # Reset offensive line positions
+    #offensive 
     o_line[0].rect.x = scrimmage_placement + 5
     o_line[0].rect.y = y_value
 
@@ -78,7 +78,7 @@ def reset_position(qb, o_line, d_line, scrimmage_placement, y_value):
     o_line[4].rect.x = scrimmage_placement + 5
     o_line[4].rect.y = y_value - 40
 
-    # Reset defensive line positions
+    # defense
     d_line[0].rect.x = scrimmage_placement - 12
     d_line[0].rect.y = y_value
 
@@ -87,6 +87,12 @@ def reset_position(qb, o_line, d_line, scrimmage_placement, y_value):
 
     d_line[2].rect.x = scrimmage_placement - 12
     d_line[2].rect.y = y_value - 20
+
+def find_ball_carrier(players):
+    for player in players:
+        if player.ball_carrier:
+            return player
+    return None
 
 def main():
     global SCRIMMAGE_PLACEMENT
@@ -136,6 +142,7 @@ def main():
                 run = False
                 break
         
+        ball_carrier= find_ball_carrier(qb + o_line + d_line)                #only qb rn, need to add more ball carrier types, wr & rb
 
         for guy in o_line:
             guy.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, OFFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line+ qb)
@@ -143,18 +150,25 @@ def main():
         for guy in d_line:
             guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line+ qb)
 
-        tackle_pos= qb[0].qb_movement(PLAYER_VEL, WIDTH, HEIGHT, o_line + d_line + qb)
+        # qb[0].qb_movement(PLAYER_VEL, WIDTH, HEIGHT, o_line + d_line + qb)   may need later
 
-        if tackle_pos:
-            print(f"Tackle pos at: {tackle_pos}")
-            down_count+= 1
-            print(f"down: {down_count}")
-            SCRIMMAGE_PLACEMENT= tackle_pos[0]
-            reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
+        
+        keys= pygame.key.get_pressed()                  # user control of qb for testing purposes
+        if ball_carrier:
+            ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
 
-            if down_count > 4:
-                print("Loss of downs")
-                down_count= 0
+        if ball_carrier:
+            tackle_pos= Player.tackle(ball_carrier, d_line)
+            if tackle_pos:  
+                print(f"Tackle pos at: {tackle_pos}")
+                down_count+= 1
+                print(f"down: {down_count}")
+                SCRIMMAGE_PLACEMENT= tackle_pos[0]
+                reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
+
+                if down_count > 4:
+                    print("Loss of downs")
+                    down_count= 0
 
 
         draw(WIN, o_line + d_line + qb, lines, elapsed_time)
