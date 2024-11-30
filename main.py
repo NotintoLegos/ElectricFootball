@@ -58,9 +58,42 @@ def draw(WIN, players, lines, elapsed_time):
 
     pygame.display.update()    
 
+def reset_position(qb, o_line, d_line, scrimmage_placement, y_value):
+    qb[0].rect.x= scrimmage_placement + 20
+    qb[0].rect.y = y_value
+
+    # Reset offensive line positions
+    o_line[0].rect.x = scrimmage_placement + 5
+    o_line[0].rect.y = y_value
+
+    o_line[1].rect.x = scrimmage_placement + 5
+    o_line[1].rect.y = y_value + 20
+
+    o_line[2].rect.x = scrimmage_placement + 5
+    o_line[2].rect.y = y_value - 20
+
+    o_line[3].rect.x = scrimmage_placement + 5
+    o_line[3].rect.y = y_value + 40
+
+    o_line[4].rect.x = scrimmage_placement + 5
+    o_line[4].rect.y = y_value - 40
+
+    # Reset defensive line positions
+    d_line[0].rect.x = scrimmage_placement - 12
+    d_line[0].rect.y = y_value
+
+    d_line[1].rect.x = scrimmage_placement - 12
+    d_line[1].rect.y = y_value + 20
+
+    d_line[2].rect.x = scrimmage_placement - 12
+    d_line[2].rect.y = y_value - 20
+
 def main():
+    global SCRIMMAGE_PLACEMENT
     run = True
     clock= pygame.time.Clock()
+
+    down_count= 1    
 
 # object creation, don't know if I should make a factory since its max of 22 players
 
@@ -102,14 +135,26 @@ def main():
             if event.type== pygame.QUIT:
                 run = False
                 break
-                
+        
+
         for guy in o_line:
             guy.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, OFFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line+ qb)
 
         for guy in d_line:
             guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, DEFENSE_ON_LINE_SETUP, Y_VALUE, o_line + d_line+ qb)
 
-        qb[0].qb_movement(PLAYER_VEL, WIDTH, HEIGHT, o_line + d_line + qb)
+        tackle_pos= qb[0].qb_movement(PLAYER_VEL, WIDTH, HEIGHT, o_line + d_line + qb)
+
+        if tackle_pos:
+            print(f"Tackle pos at: {tackle_pos}")
+            down_count+= 1
+            print(f"down: {down_count}")
+            SCRIMMAGE_PLACEMENT= tackle_pos[0]
+            reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
+
+            if down_count > 4:
+                print("Loss of downs")
+                down_count= 0
 
 
         draw(WIN, o_line + d_line + qb, lines, elapsed_time)
