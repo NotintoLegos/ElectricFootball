@@ -94,6 +94,35 @@ def find_ball_carrier(players):
             return player
     return None
 
+def next_down(down):
+    return down + 1
+
+def collision_handler(down, ball_carrier, d_line, o_line, all_players):
+    for defender in d_line:
+        if ball_carrier.rect.colliderect(defender.rect):
+            next_down(down)
+            print("Ball carrier tackled by defense!")
+            print("Down: {down}")
+            return ball_carrier.rect.x, ball_carrier.rect.y
+    
+    for player in all_players:
+        if player != ball_carrier:
+            for other_player in all_players:
+                if player != other_player and player.rect.colliderect(other_player.rect):
+                    if player.rect.x < other_player.rect.x:
+                        player.rect.x -= 1
+                    else:
+                        player.rect.x += 1
+                    if player.rect.y < other_player.rect.y:
+                        player.rect.y -= 1
+                    else:
+                        player.rect.y += 1
+
+    return "no_collision", None
+
+
+#-------------------------------------------------------------------------------------------
+
 def main():
     global SCRIMMAGE_PLACEMENT
     run = True
@@ -142,36 +171,14 @@ def main():
                 run = False
                 break
         
-        ball_carrier= find_ball_carrier(qb + o_line + d_line)                #only qb rn, need to add more ball carrier types, wr & rb
+        ball_carrier= find_ball_carrier(qb + o_line + d_line) # needs to go>> within single_play loop, only qb rn, need to add more ball carrier types, wr & rb
         
-        keys= pygame.key.get_pressed()                  # user control of qb for testing purposes
+        keys= pygame.key.get_pressed()      # user control of qb for testing purposes
                 # Ball carrier movement (controlled by keys)
         if ball_carrier:
             ball_carrier.color= "purple"
             ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
-
-        # Handle collisions for the ball carrier
-        for player in o_line + d_line + qb:
-            if player != ball_carrier and ball_carrier.rect.colliderect(player.rect):
-                if player.team == "defense":
-                    # Handle tackle by a defender
-                    tackle_pos = Player.tackle(ball_carrier, d_line)
-                    if tackle_pos:
-                        print(f"Tackle pos at: {tackle_pos}")
-                        down_count += 1
-                        print(f"down: {down_count}")
-                        SCRIMMAGE_PLACEMENT = tackle_pos[0]
-                        reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
-
-                        if down_count > 4:
-                            print("Loss of downs")
-                            down_count = 0
-                        break  # Stop further checks once tackled
-                elif player.team == "offense":
-                    # Handle collision with other offensive players
-                    print(f"Collision with teammate at: {player.rect.topleft}")
-                    # Optional: Add specific logic for offensive collisions
-                    break
+        
 
 
         draw(WIN, o_line + d_line + qb, lines, elapsed_time)

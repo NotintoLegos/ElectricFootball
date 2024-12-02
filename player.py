@@ -24,63 +24,32 @@ class Player:
         if keys[pygame.K_UP] and self.rect.y - player_vel >=0:
             self.rect.y -= player_vel
 
-# need tackle function for ball carriers
-    @staticmethod
-    def tackle(carrier, defenders): # check if carrier tackled by defense
-        for defender in defenders:
-            if carrier.rect.colliderect(defender.rect):
-                return carrier.rect.x, carrier.rect.y
-        return None
-
 #defense movements, linemen, DBs, linebackers
     def defensive_movement_linemen(self, slow_velocity, width, height, dx, dy, other_players):
         directions= [(slow_velocity, 0), (0, 0), (0, slow_velocity), (0, -slow_velocity)]
         dx, dy= random.choice(directions)
+        self.rect.x += dx
+        self.rect.y += dy
 
-        new_rect= self.rect.move(dx, dy)
+        self.rect.x = max(0, min(self.rect.x, width - self.rect.width))
+        self.rect.y = max(0, min(self.rect.y, height - self.rect.height))
 
-        if any(new_rect.colliderect(player.rect) for player in other_players if player != self):
-            return
-
-        if 0 <= new_rect.x <= width - self.rect.width:
-            self.rect.x = new_rect.x
-        if 0 <= new_rect.y <= height - self.rect.height:
-            self.rect.y = new_rect.y
 
             
 #offense movements
-    def offensive_movement_linemen(self, slow_velocity, width, height, dx, dy, other_players):
+    def offensive_movement_linemen(self, slow_velocity, width, height, dx, dy):
         directions= [(0, 0), (-slow_velocity, 0), (0, slow_velocity), (0, -slow_velocity)]
         dx, dy= random.choice(directions)
+        self.rect.x += dx
+        self.rect.y += dy
 
-        new_rect= self.rect.move(dx, dy)
-
-        if any(new_rect.colliderect(player.rect) for player in other_players if player != self):
-            return
-        
-        if 0 <= new_rect.x <= width - self.rect.width:
-            self.rect.x = new_rect.x
-        if 0 <= new_rect.y <= height - self.rect.height:
-            self.rect.y = new_rect.y
+        self.rect.x = max(0, min(self.rect.x, width - self.rect.width))
+        self.rect.y = max(0, min(self.rect.y, height - self.rect.height))
 
 # qb is first ball carrier
-    def qb_movement(self, slow_velocity, width, height, other_players):
+    def qb_movement(self, slow_velocity, width, height, dx, dy):
         directions= [(slow_velocity, 0), (-slow_velocity, 0), (0, slow_velocity), (0, -slow_velocity)]
         dx, dy= random.choice(directions)
-
-        new_rect= self.rect.move(dx, dy)
-
-        for player in other_players:
-            if new_rect.colliderect(player.rect) and player != self:
-                if player.team== "defense":
-                    tackle_pos= self.tackle(other_players)
-                    if tackle_pos:
-                        print(f"tackle occured at position: {tackle_pos}")
-                        return
-                elif player.team== "offense":
-                    return # to stop when in contact with offense
-
-        if 0 <= new_rect.x <= width - self.rect.width:
-            self.rect.x = new_rect.x
-        if 0 <= new_rect.y <= height - self.rect.height:
-            self.rect.y = new_rect.y
+        
+        self.rect.x = max(0, min(self.rect.x, width - self.rect.width))
+        self.rect.y = max(0, min(self.rect.y, height - self.rect.height))
