@@ -13,7 +13,7 @@ VELOCITY_LINEMEN= 1
 
 SCRIMMAGE_WIDTH= 3
 SCRIMMAGE_HEIGHT= HEIGHT
-SCRIMMAGE_PLACEMENT= WIDTH
+global SCRIMMAGE_PLACEMENT
 
 OFFENSE_COLOR= "blue"
 DEFENSE_COLOR= "red"
@@ -97,7 +97,7 @@ def find_ball_carrier(players):
 def next_down(down):
     return down + 1
 
-def collision_handler(down, ball_carrier, d_line, o_line, all_players):
+def collision_handler(down, ball_carrier, d_line, all_players):
     for defender in d_line:
         if ball_carrier.rect.colliderect(defender.rect):
             next_down(down)
@@ -118,17 +118,14 @@ def collision_handler(down, ball_carrier, d_line, o_line, all_players):
                     else:
                         player.rect.y += 1
 
-    return "no_collision", None
+    return None
 
 
 #-------------------------------------------------------------------------------------------
 
 def main():
-    global SCRIMMAGE_PLACEMENT
-    run = True
     clock= pygame.time.Clock()
-
-    down_count= 1    
+    SCRIMMAGE_PLACEMENT= 300
 
 # object creation, don't know if I should make a factory since its max of 22 players
 
@@ -158,30 +155,57 @@ def main():
         Lines(1100, 0, 3, 550, "white")
     ]
     
+    run = True
+    football_play= False
 
     start_time= time.time()
     elapsed_time= 0
 
     while run:
-        clock.tick(30)
-        elapsed_time= time.time() - start_time
-
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
                 run = False
                 break
         
-        ball_carrier= find_ball_carrier(qb + o_line + d_line) # needs to go>> within single_play loop, only qb rn, need to add more ball carrier types, wr & rb
+
+        drive= True
+        while drive:
+            down_count= 1
+
+            while down_count <=4:
+                reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
+                football_play= True
+
+                while football_play:
+                    clock.tick(30)
+                    elapsed_time= time.time() - start_time
+                    ball_carrier= find_ball_carrier(qb + o_line + d_line) # needs to go>> within single_play loop, only qb rn, need to add more ball carrier types, wr & rb
         
-        keys= pygame.key.get_pressed()      # user control of qb for testing purposes
+                    for guy in o_line:
+                        guy.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
+                    for guy in d_line:
+                        guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
+                    keys= pygame.key.get_pressed()      # user control of qb for testing purposes
                 # Ball carrier movement (controlled by keys)
-        if ball_carrier:
-            ball_carrier.color= "purple"
-            ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
+                    if ball_carrier:
+                        ball_carrier.color= "purple"
+                        ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
+                    
+                    tackle_pos= collision_handler(down_count, ball_carrier, d_line, qb+ o_line+ d_line)
+                    if tackle_pos:
+                        print(f"Tackled at: {tackle_pos}")
+                        SCRIMMAGE_PLACEMENT= tackle_pos[0]
+                        down_count += 1
+                        football_play= False
+                    
+                    draw(WIN, o_line + d_line + qb, lines, elapsed_time)
+                
+                if down_count > 4:
+                    print(f"Loss of down")
+                    drive= False
+                    break
         
-
-
-        draw(WIN, o_line + d_line + qb, lines, elapsed_time)
+        run= False # ENDS THE GAME 
 
     pygame.quit()
 

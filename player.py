@@ -25,11 +25,13 @@ class Player:
             self.rect.y -= player_vel
 
 #defense movements, linemen, DBs, linebackers
-    def defensive_movement_linemen(self, slow_velocity, width, height, dx, dy, other_players):
+    def defensive_movement_linemen(self, slow_velocity, width, height, dx, dy):
         directions= [(slow_velocity, 0), (0, 0), (0, slow_velocity), (0, -slow_velocity)]
         dx, dy= random.choice(directions)
         self.rect.x += dx
         self.rect.y += dy
+
+        
 
         self.rect.x = max(0, min(self.rect.x, width - self.rect.width))
         self.rect.y = max(0, min(self.rect.y, height - self.rect.height))
@@ -46,7 +48,7 @@ class Player:
         self.rect.x = max(0, min(self.rect.x, width - self.rect.width))
         self.rect.y = max(0, min(self.rect.y, height - self.rect.height))
 
-# qb is first ball carrier
+# qb is first ball carrier by default
     def qb_movement(self, slow_velocity, width, height, dx, dy):
         directions= [(slow_velocity, 0), (-slow_velocity, 0), (0, slow_velocity), (0, -slow_velocity)]
         dx, dy= random.choice(directions)
