@@ -13,7 +13,7 @@ VELOCITY_LINEMEN= 1
 
 SCRIMMAGE_WIDTH= 3
 SCRIMMAGE_HEIGHT= HEIGHT
-global SCRIMMAGE_PLACEMENT
+SCRIMMAGE_PLACEMENT= 1200
 
 OFFENSE_COLOR= "blue"
 DEFENSE_COLOR= "red"
@@ -88,6 +88,12 @@ def reset_position(qb, o_line, d_line, scrimmage_placement, y_value):
     d_line[2].rect.x = scrimmage_placement - 12
     d_line[2].rect.y = y_value - 20
 
+def update_lines(lines, scrimmage_placement):
+    lines[0].x= scrimmage_placement
+    first_down_distance= scrimmage_placement- 100
+    lines[1].x = first_down_distance
+    print(f"updated scrimmage line= {lines[0].x} FD= {lines[1].x}")
+
 def find_ball_carrier(players):
     for player in players:
         if player.ball_carrier:
@@ -102,7 +108,7 @@ def collision_handler(down, ball_carrier, d_line, all_players):
         if ball_carrier.rect.colliderect(defender.rect):
             next_down(down)
             print("Ball carrier tackled by defense!")
-            print("Down: {down}")
+            print(f"Down: {down}")
             return ball_carrier.rect.x, ball_carrier.rect.y
     
     for player in all_players:
@@ -156,7 +162,10 @@ def main():
     ]
     
     run = True
-    football_play= False
+    game_state= "initialize"
+    down_count= 1
+
+
 
     start_time= time.time()
     elapsed_time= 0
@@ -166,46 +175,45 @@ def main():
             if event.type== pygame.QUIT:
                 run = False
                 break
-        
 
-        drive= True
-        while drive:
+        if game_state== "initialize":
+            reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
+            game_state= "play_down"
+        elif game_state== "play_down":
+            elapsed_time= time.time() - start_time
+            ball_carrier= find_ball_carrier(qb+ o_line + d_line) # extra players rn to make sure system works
+
+            for player in o_line:
+                player.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
+            for player in d_line:
+                player.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
+
+            if ball_carrier:
+                keys= pygame.key.get_pressed()
+                ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
+            
+            tackle_pos= collision_handler(down_count, ball_carrier, d_line, qb+ o_line+ d_line)
+            if tackle_pos and tackle_pos[0] != None:
+                SCRIMMAGE_PLACEMENT= tackle_pos[0]
+                update_lines(lines, SCRIMMAGE_PLACEMENT)
+                game_state= "end_down"
+        
+            draw(WIN, o_line + d_line + qb, lines, elapsed_time)
+        
+        elif game_state== "end_down":
+            down_count+= 1
+            if down_count > 4:
+                print(f"Turnover")
+                game_state= "end_drive"
+            else:
+                game_state= "initialize"
+        
+        elif game_state== "end_drive":
+            print("resetting game")
             down_count= 1
-
-            while down_count <=4:
-                reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
-                football_play= True
-
-                while football_play:
-                    clock.tick(30)
-                    elapsed_time= time.time() - start_time
-                    ball_carrier= find_ball_carrier(qb + o_line + d_line) # needs to go>> within single_play loop, only qb rn, need to add more ball carrier types, wr & rb
+            game_state= "initialize"
         
-                    for guy in o_line:
-                        guy.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
-                    for guy in d_line:
-                        guy.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
-                    keys= pygame.key.get_pressed()      # user control of qb for testing purposes
-                # Ball carrier movement (controlled by keys)
-                    if ball_carrier:
-                        ball_carrier.color= "purple"
-                        ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
-                    
-                    tackle_pos= collision_handler(down_count, ball_carrier, d_line, qb+ o_line+ d_line)
-                    if tackle_pos:
-                        print(f"Tackled at: {tackle_pos}")
-                        SCRIMMAGE_PLACEMENT= tackle_pos[0]
-                        down_count += 1
-                        football_play= False
-                    
-                    draw(WIN, o_line + d_line + qb, lines, elapsed_time)
-                
-                if down_count > 4:
-                    print(f"Loss of down")
-                    drive= False
-                    break
-        
-        run= False # ENDS THE GAME 
+        clock.tick(30)
 
     pygame.quit()
 
