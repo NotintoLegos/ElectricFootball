@@ -136,13 +136,13 @@ def new_drive_logic(qb, o_line, d_line, lines):
     lines[0].x= SCRIMMAGE_PLACEMENT
     lines[1].x= SCRIMMAGE_PLACEMENT - 100
     print(f"LOS @ {lines[0].x}")
-    print(f"First down line: {lines[1].x}")
+    print(f"First down line: {lines[1].x}\n")
     reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
     return "play_start"    
 
 def play_start_logic(qb, o_line, d_line, elapsed_time, lines):
     reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
-    print("reset position and starting the play")
+    print("play_start_logic: \n\treset position and starting the play")
     return "play_active"
 
 def play_active_logic(qb, o_line, d_line, lines, elapsed_time, down_count):
@@ -160,7 +160,7 @@ def play_active_logic(qb, o_line, d_line, lines, elapsed_time, down_count):
     
     tackle_pos= collision_handler(down_count, ball_carrier, d_line, qb+ o_line+ d_line)
     if tackle_pos:
-        print(f"tackle_pos: tackle at {tackle_pos}")
+        print(f"tackle_pos: \n\ttackle at {tackle_pos}")
         SCRIMMAGE_PLACEMENT= tackle_pos[0]
         update_LOS(lines, SCRIMMAGE_PLACEMENT)
         print(f"On tackle. updating line to {lines[0].x}")
@@ -172,9 +172,9 @@ def play_active_logic(qb, o_line, d_line, lines, elapsed_time, down_count):
 
 def play_end_logic(down_count):
     if down_count >= 4:
-        print(f"Loss of downs")
+        print(f"\nLoss of downs")
         return "new_drive"
-    print(f"play ended. get ready for next play")
+    print(f"\nplay ended. get ready for next play")
     return "play_start"
 #-------------------------------------------------------------------------------------------
 
