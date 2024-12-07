@@ -31,8 +31,6 @@ class Player:
         self.rect.x += dx
         self.rect.y += dy
 
-        
-
         self.rect.x = max(0, min(self.rect.x, width - self.rect.width))
         self.rect.y = max(0, min(self.rect.y, height - self.rect.height))
 

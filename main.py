@@ -94,6 +94,10 @@ def update_lines(lines, scrimmage_placement):
     lines[1].x = first_down_distance
     print(f"updated scrimmage line= {lines[0].x} FD= {lines[1].x}")
 
+def update_LOS(lines, scrimmage_placement):
+    lines[0].x= scrimmage_placement
+    print("only updating line of scrimmage after tackle")
+
 def find_ball_carrier(players):
     for player in players:
         if player.ball_carrier:
@@ -126,7 +130,52 @@ def collision_handler(down, ball_carrier, d_line, all_players):
 
     return None
 
+# -----------each play state logic-------------------
+def new_drive_logic(qb, o_line, d_line, lines):
+    global SCRIMMAGE_PLACEMENT
+    lines[0].x= SCRIMMAGE_PLACEMENT
+    lines[1].x= SCRIMMAGE_PLACEMENT - 100
+    print(f"LOS @ {lines[0].x}")
+    print(f"First down line: {lines[1].x}")
+    reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
+    return "play_start"    
 
+def play_start_logic(qb, o_line, d_line, elapsed_time, lines):
+    reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
+    print("reset position and starting the play")
+    return "play_active"
+
+def play_active_logic(qb, o_line, d_line, lines, elapsed_time, down_count):
+    global SCRIMMAGE_PLACEMENT
+    ball_carrier= find_ball_carrier(qb+ o_line + d_line)
+    for player in o_line:
+        player.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
+    for player in d_line:
+        player.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
+
+    if ball_carrier:
+        ball_carrier.color= "purple"
+        keys= pygame.key.get_pressed()
+        ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
+    
+    tackle_pos= collision_handler(down_count, ball_carrier, d_line, qb+ o_line+ d_line)
+    if tackle_pos:
+        print(f"tackle_pos: tackle at {tackle_pos}")
+        SCRIMMAGE_PLACEMENT= tackle_pos[0]
+        update_LOS(lines, SCRIMMAGE_PLACEMENT)
+        print(f"On tackle. updating line to {lines[0].x}")
+        next_down(down_count)
+        return "play_end"
+
+    draw(WIN, o_line + d_line + qb, lines, elapsed_time)
+    return "play_active"
+
+def play_end_logic(down_count):
+    if down_count >= 4:
+        print(f"Loss of downs")
+        return "new_drive"
+    print(f"play ended. get ready for next play")
+    return "play_start"
 #-------------------------------------------------------------------------------------------
 
 def main():
@@ -156,13 +205,13 @@ def main():
 
     lines= [
         Lines(SCRIMMAGE_PLACEMENT, 0, SCRIMMAGE_WIDTH, SCRIMMAGE_HEIGHT, "blue"),
-        Lines(FIRST_DOWN_DISTANCE, 0, 3, 550, "yellow"),
+        Lines(FIRST_DOWN_DISTANCE, 0, 3, SCRIMMAGE_HEIGHT, "yellow"),
         Lines(97, 0, 3, 550, "white"),
         Lines(1100, 0, 3, 550, "white")
     ]
     
     run = True
-    game_state= "initialize"
+    game_state= "new_drive"
     down_count= 1
 
 
@@ -171,47 +220,24 @@ def main():
     elapsed_time= 0
 
     while run:
+        
+        elapsed_time= time.time() - start_time
         for event in pygame.event.get():
             if event.type== pygame.QUIT:
                 run = False
                 break
 
-        if game_state== "initialize":
-            reset_position(qb, o_line, d_line, SCRIMMAGE_PLACEMENT, Y_VALUE)
-            game_state= "play_down"
-        elif game_state== "play_down":
-            elapsed_time= time.time() - start_time
-            ball_carrier= find_ball_carrier(qb+ o_line + d_line) # extra players rn to make sure system works
+        if game_state== "new_drive":
+            game_state= new_drive_logic(qb, o_line, d_line, lines)
 
-            for player in o_line:
-                player.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
-            for player in d_line:
-                player.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
-
-            if ball_carrier:
-                keys= pygame.key.get_pressed()
-                ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
-            
-            tackle_pos= collision_handler(down_count, ball_carrier, d_line, qb+ o_line+ d_line)
-            if tackle_pos and tackle_pos[0] != None:
-                SCRIMMAGE_PLACEMENT= tackle_pos[0]
-                update_lines(lines, SCRIMMAGE_PLACEMENT)
-                game_state= "end_down"
+        elif game_state== "play_start":
+            game_state= play_start_logic(qb, o_line, d_line, elapsed_time, lines)
         
-            draw(WIN, o_line + d_line + qb, lines, elapsed_time)
+        elif game_state== "play_active":
+            game_state= play_active_logic(qb, o_line, d_line, lines, elapsed_time, down_count)
         
-        elif game_state== "end_down":
-            down_count+= 1
-            if down_count > 4:
-                print(f"Turnover")
-                game_state= "end_drive"
-            else:
-                game_state= "initialize"
-        
-        elif game_state== "end_drive":
-            print("resetting game")
-            down_count= 1
-            game_state= "initialize"
+        elif game_state== "play_end":  # end drive will be used for turnover procedure
+            game_state= play_end_logic(down_count)
         
         clock.tick(30)
 
