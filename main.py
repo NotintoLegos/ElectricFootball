@@ -49,11 +49,7 @@ def draw(WIN, players, elapsed_time):
         player.draw(WIN)
 
     pygame.display.update()    
-
-def draw_lines(WIN, lines):
-    for line in lines:
-        line.draw_lines(WIN)
-    pygame.display.update()
+    
 
 def reset_position(qb, o_line, d_line, scrimmage_placement, y_value):
     qb[0].rect.x= scrimmage_placement + 20
@@ -130,9 +126,19 @@ def new_drive_logic(WIN, lines):
     print(f"LOS @ {lines[0].x}")
     print(f"First down line: {lines[1].x}\n")
 
-    draw_lines(WIN, lines)
 
     return "play_start"    
+
+def set_of_downs_logic(lines):
+    lines[1].draw_lines(WIN)
+
+    game_state["down_count"] += 1
+    print(f"\tdown: {game_state['down_count']}")
+    
+    if game_state["down_count"] > 4:
+        print(f"\tLoss of downs")
+        return "new_drive"
+    return "play_start"
 
 def play_start_logic(qb, o_line, d_line, lines):
     reset_position(qb, o_line, d_line, game_state["scrimmage_placement"], game_state["y_value"])
@@ -141,7 +147,7 @@ def play_start_logic(qb, o_line, d_line, lines):
 
     print(f"\tStarting down:{game_state['down_count']}")
 
-    draw_lines(WIN, lines)
+    lines[0].draw_lines(WIN)
     return "play_active"
 
 def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
@@ -171,13 +177,7 @@ def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
 
 def play_end_logic():
     print(f"\nplay_end_logic")
-    game_state["down_count"] += 1
-    print(f"\tdown: {game_state['down_count']}")
-    
-    if game_state["down_count"] > 4:
-        print(f"\tLoss of downs")
-        return "new_drive"
-    return "play_start"
+    return "set_of_downs"
 #-------------------------------------------------------------------------------------------
 
 def main():
@@ -227,6 +227,9 @@ def main():
 
         if game_state== "new_drive":
             game_state= new_drive_logic(WIN, lines)
+
+        elif game_state== "set_of_downs":
+            game_state= set_of_downs_logic(lines)
 
         elif game_state== "play_start":
             game_state= play_start_logic(qb, o_line, d_line, lines)
