@@ -6,6 +6,6 @@ class Lines:
         self.rect= pygame.Rect(x, y, width, height)
         self.color= color
     
-    def draw(self, window):
+    def draw_lines(self, window):
         pygame.draw.rect(window, self.color, self.rect)
 

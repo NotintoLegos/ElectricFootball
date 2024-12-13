@@ -50,6 +50,8 @@ class Player:
     def qb_movement(self, slow_velocity, width, height, dx, dy):
         directions= [(slow_velocity, 0), (-slow_velocity, 0), (0, slow_velocity), (0, -slow_velocity)]
         dx, dy= random.choice(directions)
+        self.rect.x += dx
+        self.rect.y += dy
         
         self.rect.x = max(0, min(self.rect.x, width - self.rect.width))
         self.rect.y = max(0, min(self.rect.y, height - self.rect.height))
