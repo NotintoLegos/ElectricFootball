@@ -39,7 +39,7 @@ game_state= {
 }
 
 
-def draw(WIN, players, elapsed_time):
+def draw(WIN, players, elapsed_time, lines):
     WIN.blit(BG, (0, 0))
 
     time_text= FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
@@ -47,6 +47,9 @@ def draw(WIN, players, elapsed_time):
 
     for player in players:
         player.draw(WIN)
+    
+    for line in lines:
+        line.draw_lines(WIN)
 
     pygame.display.update()    
     
@@ -130,7 +133,8 @@ def new_drive_logic(WIN, lines):
     return "play_start"    
 
 def set_of_downs_logic(lines):
-    lines[1].draw_lines(WIN)
+    lines[1].rect.x= game_state["first_down_line"]
+    print(f"\tFirst down line: {lines[1].rect.x}")
 
     game_state["down_count"] += 1
     print(f"\tdown: {game_state['down_count']}")
@@ -143,11 +147,12 @@ def set_of_downs_logic(lines):
 def play_start_logic(qb, o_line, d_line, lines):
     reset_position(qb, o_line, d_line, game_state["scrimmage_placement"], game_state["y_value"])
     print("play_start_logic:\n\treset position and starting the play")
-    update_LOS(lines, game_state["scrimmage_placement"])
+    
+    lines[0].rect.x= game_state["scrimmage_placement"]
+    print(f"\tScrimmage placement at play start:{game_state['scrimmage_placement']}")
 
     print(f"\tStarting down:{game_state['down_count']}")
 
-    lines[0].draw_lines(WIN)
     return "play_active"
 
 def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
@@ -168,11 +173,10 @@ def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
     if tackle_pos:
         print(f"\ttackle_pos: \n\ttackle at {tackle_pos}")
         game_state["scrimmage_placement"] = tackle_pos[0]
-        update_LOS(lines, game_state["scrimmage_placement"])
         print(f"\tOn tackle. updating line to {lines[0].x}")
         return "play_end"
 
-    draw(WIN, o_line + d_line + qb, elapsed_time)
+    draw(WIN, o_line + d_line + qb, elapsed_time, lines)
     return "play_active"
 
 def play_end_logic():
