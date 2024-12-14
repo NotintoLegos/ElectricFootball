@@ -39,7 +39,7 @@ game_state= {
 }
 
 
-def draw(WIN, players, elapsed_time, lines):
+def draw(WIN, players, elapsed_time, lines, game_state):
     WIN.blit(BG, (0, 0))
 
     time_text= FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
@@ -50,6 +50,10 @@ def draw(WIN, players, elapsed_time, lines):
     
     for line in lines:
         line.draw_lines(WIN)
+
+    if game_state == "play_start":
+        start_text = FONT.render("Press SPACE to start play", 1, "yellow")
+        WIN.blit(start_text, (WIDTH // 2 - start_text.get_width() // 2, HEIGHT // 2))
 
     pygame.display.update()    
     
@@ -123,20 +127,22 @@ def collision_handler(ball_carrier, d_line, all_players):
 # -----------each play state logic-------------------
 def new_drive_logic(WIN, lines):
     global SCRIMMAGE_PLACEMENT
-    game_state["down_count"]= 1
+
     lines[0].x= game_state["scrimmage_placement"]
     lines[1].x= game_state["first_down_line"]
     print(f"LOS @ {lines[0].x}")
     print(f"First down line: {lines[1].x}\n")
 
+    game_state["down_count"]= 1
 
-    return "play_start"    
+    return "set_of_downs"    
 
 def set_of_downs_logic(lines):
+    print("set_of_downs_logic")
+
     lines[1].rect.x= game_state["first_down_line"]
     print(f"\tFirst down line: {lines[1].rect.x}")
 
-    game_state["down_count"] += 1
     print(f"\tdown: {game_state['down_count']}")
     
     if game_state["down_count"] > 4:
@@ -153,7 +159,11 @@ def play_start_logic(qb, o_line, d_line, lines):
 
     print(f"\tStarting down:{game_state['down_count']}")
 
-    return "play_active"
+    keys= pygame.key.get_pressed()
+    if keys[pygame.K_SPACE]:
+        print("\tspacebar press")
+        return "play_active"
+    return "play_start"
 
 def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
     ball_carrier= find_ball_carrier(qb+ o_line + d_line)
@@ -173,14 +183,17 @@ def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
     if tackle_pos:
         print(f"\ttackle_pos: \n\ttackle at {tackle_pos}")
         game_state["scrimmage_placement"] = tackle_pos[0]
+        game_state["y_value"]= tackle_pos[1]
         print(f"\tOn tackle. updating line to {lines[0].x}")
         return "play_end"
 
-    draw(WIN, o_line + d_line + qb, elapsed_time, lines)
+    draw(WIN, o_line + d_line + qb, elapsed_time, lines, game_state)
     return "play_active"
 
 def play_end_logic():
-    print(f"\nplay_end_logic")
+    game_state["down_count"] += 1
+
+    print(f"play_end_logic\n")
     return "set_of_downs"
 #-------------------------------------------------------------------------------------------
 
@@ -236,6 +249,7 @@ def main():
             game_state= set_of_downs_logic(lines)
 
         elif game_state== "play_start":
+            draw(WIN, o_line + d_line + qb, elapsed_time, lines, game_state)  # draws current state of game, so not blank screen
             game_state= play_start_logic(qb, o_line, d_line, lines)
         
         elif game_state== "play_active":
