@@ -7,7 +7,7 @@ from lines import Lines
 pygame.font.init()
 
 BALL_H, BALL_W= 12, 12
-WIDTH, HEIGHT= 1200, 550
+WIDTH, HEIGHT= 1300, 650
 PLAYER_VEL= 2
 VELOCITY_LINEMEN= 1
 
@@ -21,23 +21,20 @@ DEFENSE_COLOR= "red"
 BALL_CARRIER= True
 NOT_BALL_CARRIER= False
 
-
-
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Electric Football")
-BG= pygame.transform.scale(pygame.image.load("g558.jpg"), (WIDTH, HEIGHT))
+BG= pygame.transform.scale(pygame.image.load("ND_Field.png"), (WIDTH, HEIGHT))
 FONT= pygame.font.SysFont("ariel", 60)
 
-# making a dictionary
+# dictionary
 game_state= {
     "state": "new_drive", # in future change this to kickoff or start_menu
     "down_count": 1,
     "scrimmage_placement": 1000,
     "first_down_line": 900,
-    "y_value": 300,
+    "y_value": 321,
     "elapsed_time": 0
 }
-
 
 def draw(WIN, players, elapsed_time, lines, game_state):
     WIN.blit(BG, (0, 0))
@@ -57,7 +54,6 @@ def draw(WIN, players, elapsed_time, lines, game_state):
 
     pygame.display.update()    
     
-
 def reset_position(qb, o_line, d_line, scrimmage_placement, y_value):
     qb[0].rect.x= scrimmage_placement + 20
     qb[0].rect.y = y_value
@@ -87,15 +83,6 @@ def reset_position(qb, o_line, d_line, scrimmage_placement, y_value):
 
     d_line[2].rect.x = scrimmage_placement - 12
     d_line[2].rect.y = y_value - 20
-
-def update_FDL(lines, line_of_scrimmage):
-    first_down_line= line_of_scrimmage - 100 # -------- add if statement before this for direction the offense travels for + or - 100px
-    lines[1].x = first_down_line
-    print(f"\nupdated FDL= {lines[1].x}")
-
-def update_LOS(lines, scrimmage_placement):
-    lines[0].x= scrimmage_placement
-    print("\tupdate line of scrimmage at play_start_logic")
 
 def find_ball_carrier(players):
     for player in players:
@@ -151,13 +138,8 @@ def set_of_downs_logic(lines):
     return "play_start"
 
 def play_start_logic(qb, o_line, d_line, lines):
-    reset_position(qb, o_line, d_line, game_state["scrimmage_placement"], game_state["y_value"])
-    print("play_start_logic:\n\treset position and starting the play")
-    
+    reset_position(qb, o_line, d_line, game_state["scrimmage_placement"], game_state["y_value"])  
     lines[0].rect.x= game_state["scrimmage_placement"]
-    print(f"\tScrimmage placement at play start:{game_state['scrimmage_placement']}")
-
-    print(f"\tStarting down:{game_state['down_count']}")
 
     keys= pygame.key.get_pressed()
     if keys[pygame.K_SPACE]:
@@ -184,7 +166,6 @@ def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
         print(f"\ttackle_pos: \n\ttackle at {tackle_pos}")
         game_state["scrimmage_placement"] = tackle_pos[0]
         game_state["y_value"]= tackle_pos[1]
-        print(f"\tOn tackle. updating line to {lines[0].x}")
         return "play_end"
 
     draw(WIN, o_line + d_line + qb, elapsed_time, lines, game_state)
@@ -224,8 +205,8 @@ def main():
     lines= [
         Lines(0, 0, SCRIMMAGE_WIDTH, SCRIMMAGE_HEIGHT, "blue"),
         Lines(0, 0, 3, SCRIMMAGE_HEIGHT, "yellow"),
-        Lines(97, 0, 3, 550, "white"),
-        Lines(1100, 0, 3, 550, "white")
+        Lines(147, 50, 3, 550, "white"),
+        Lines(1150, 50, 3, 550, "white")
     ]
     
     run = True
