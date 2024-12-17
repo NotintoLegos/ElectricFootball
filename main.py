@@ -8,8 +8,12 @@ pygame.font.init()
 
 BALL_H, BALL_W= 12, 12
 WIDTH, HEIGHT= 1300, 650
+WEST_ENDZONE, EAST_ENDZONE= 150, 1150
+
 PLAYER_VEL= 2
 VELOCITY_LINEMEN= 1
+
+
 
 SCRIMMAGE_WIDTH= 3
 SCRIMMAGE_HEIGHT= HEIGHT - 100
@@ -97,10 +101,16 @@ def find_ball_carrier(players):
             return player
     return None
 
-def collision_handler(ball_carrier, d_line, all_players):
+def collision_handler(ball_carrier, d_line, all_players, lines):
+    # for Out of Bounds logic
+    for ob_line in lines[6:8]:
+        if ball_carrier.rect.colliderect(ob_line.rect):
+            print("play_active:\n\tOut of bounds")
+            return ball_carrier.rect.x, ball_carrier.rect.y
+    # for tackling
     for defender in d_line:
         if ball_carrier.rect.colliderect(defender.rect):
-            print("play_active:\n\tBall carrier tackled by defense!")
+            print("\tBall carrier tackled by defense!")
             return ball_carrier.rect.x, ball_carrier.rect.y
     
     for player in all_players:
@@ -115,13 +125,8 @@ def collision_handler(ball_carrier, d_line, all_players):
                         player.rect.y -= 1
                     else:
                         player.rect.y += 1
-
+    
     return None
-
-#def ob_handler(ball_carrier, lines):
- #   if ball_carrier.rect.colide_rect():
-
-  #  return None
 
 # -----------each play state logic-------------------
 def new_drive_logic(WIN, lines):
@@ -173,7 +178,7 @@ def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
         keys= pygame.key.get_pressed()
         ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
     
-    tackle_pos= collision_handler(ball_carrier, d_line, qb+ o_line+ d_line)
+    tackle_pos= collision_handler(ball_carrier, d_line, qb+ o_line+ d_line, lines)
     if tackle_pos:
         print(f"\ttackle_pos: \n\ttackle at {tackle_pos}")
         game_state["scrimmage_placement"] = tackle_pos[0]
@@ -188,9 +193,12 @@ def play_end_logic():
     game_state["down_count"] += 1
 
     if game_state["scrimmage_placement"] < game_state["first_down_line"]:
+        if game_state["first_down_line"] < WEST_ENDZONE:
+            game_state["first_down_line"]= WEST_ENDZONE
+            return "new_drive"
         game_state["first_down_line"]= game_state["scrimmage_placement"] - 100
         return "new_drive"
-        
+
     print(f"play_end_logic\n")
     return "set_of_downs"
 #-------------------------------------------------------------------------------------------
@@ -220,13 +228,13 @@ def main():
     ]
 
     lines= [
-        Lines(0, 50, SCRIMMAGE_WIDTH, SCRIMMAGE_HEIGHT, "blue"),
+        Lines(0, 50, SCRIMMAGE_WIDTH, SCRIMMAGE_HEIGHT, "blue"), 
         Lines(0, 50, 3, SCRIMMAGE_HEIGHT, "yellow"),
-        Lines(149, 50, 1, 550, CLEAR_LINE_COLOR), #goal line west     good
-        Lines(1150, 50, 1, 550, CLEAR_LINE_COLOR), #east            good
-        Lines(49, 50, 1, 550, CLEAR_LINE_COLOR), # back line of endzone west      find
+        Lines(149, 50, 1, 550, CLEAR_LINE_COLOR), # 2, goal line west   
+        Lines(1150, 50, 1, 550, CLEAR_LINE_COLOR), #east            
+        Lines(49, 50, 1, 550, CLEAR_LINE_COLOR), # 4, back line of endzone west   
         Lines(1250, 50, 1, 550, CLEAR_LINE_COLOR), # east                       
-        Lines(50, 50, 1200, 1, CLEAR_LINE_COLOR), #south sideline     good
+        Lines(50, 50, 1200, 1, CLEAR_LINE_COLOR), # 6, south sideline    
         Lines(50, 600, 1200, 1, CLEAR_LINE_COLOR) # north
         
     ]
