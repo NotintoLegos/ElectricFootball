@@ -26,7 +26,7 @@ class Player:
 
 #defense movements, linemen, DBs, linebackers
     def defensive_movement_linemen(self, slow_velocity, width, height, dx, dy):
-        directions= [(slow_velocity, 0), (0, 0), (0, slow_velocity), (0, -slow_velocity)]
+        directions= [(0, 0), (-slow_velocity, 0), (0, slow_velocity), (0, -slow_velocity)]           # testing going backward for first down line
         dx, dy= random.choice(directions)
         self.rect.x += dx
         self.rect.y += dy

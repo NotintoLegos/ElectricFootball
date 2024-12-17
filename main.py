@@ -12,10 +12,11 @@ PLAYER_VEL= 2
 VELOCITY_LINEMEN= 1
 
 SCRIMMAGE_WIDTH= 3
-SCRIMMAGE_HEIGHT= HEIGHT
+SCRIMMAGE_HEIGHT= HEIGHT - 100
 
 OFFENSE_COLOR= "blue"
 DEFENSE_COLOR= "red"
+CLEAR_LINE_COLOR= (255, 255, 255, 0)
 
 # boolean for ball carrier
 BALL_CARRIER= True
@@ -23,7 +24,7 @@ NOT_BALL_CARRIER= False
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Electric Football")
-BG= pygame.transform.scale(pygame.image.load("ND_Field.png"), (WIDTH, HEIGHT))
+BG= pygame.transform.scale(pygame.image.load("Notre_Dame_Field.png"), (WIDTH, HEIGHT))
 FONT= pygame.font.SysFont("ariel", 60)
 
 # dictionary
@@ -55,6 +56,12 @@ def draw(WIN, players, elapsed_time, lines, game_state):
     pygame.display.update()    
     
 def reset_position(qb, o_line, d_line, scrimmage_placement, y_value):
+
+    if y_value < 230:
+        y_value= 230
+    elif y_value > 410:
+        y_value= 410
+
     qb[0].rect.x= scrimmage_placement + 20
     qb[0].rect.y = y_value
 
@@ -111,6 +118,11 @@ def collision_handler(ball_carrier, d_line, all_players):
 
     return None
 
+#def ob_handler(ball_carrier, lines):
+ #   if ball_carrier.rect.colide_rect():
+
+  #  return None
+
 # -----------each play state logic-------------------
 def new_drive_logic(WIN, lines):
     global SCRIMMAGE_PLACEMENT
@@ -166,6 +178,7 @@ def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
         print(f"\ttackle_pos: \n\ttackle at {tackle_pos}")
         game_state["scrimmage_placement"] = tackle_pos[0]
         game_state["y_value"]= tackle_pos[1]
+
         return "play_end"
 
     draw(WIN, o_line + d_line + qb, elapsed_time, lines, game_state)
@@ -174,6 +187,10 @@ def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
 def play_end_logic():
     game_state["down_count"] += 1
 
+    if game_state["scrimmage_placement"] < game_state["first_down_line"]:
+        game_state["first_down_line"]= game_state["scrimmage_placement"] - 100
+        return "new_drive"
+        
     print(f"play_end_logic\n")
     return "set_of_downs"
 #-------------------------------------------------------------------------------------------
@@ -203,10 +220,15 @@ def main():
     ]
 
     lines= [
-        Lines(0, 0, SCRIMMAGE_WIDTH, SCRIMMAGE_HEIGHT, "blue"),
-        Lines(0, 0, 3, SCRIMMAGE_HEIGHT, "yellow"),
-        Lines(147, 50, 3, 550, "white"),
-        Lines(1150, 50, 3, 550, "white")
+        Lines(0, 50, SCRIMMAGE_WIDTH, SCRIMMAGE_HEIGHT, "blue"),
+        Lines(0, 50, 3, SCRIMMAGE_HEIGHT, "yellow"),
+        Lines(149, 50, 1, 550, CLEAR_LINE_COLOR), #goal line west     good
+        Lines(1150, 50, 1, 550, CLEAR_LINE_COLOR), #east            good
+        Lines(49, 50, 1, 550, CLEAR_LINE_COLOR), # back line of endzone west      find
+        Lines(1250, 50, 1, 550, CLEAR_LINE_COLOR), # east                       
+        Lines(50, 50, 1200, 1, CLEAR_LINE_COLOR), #south sideline     good
+        Lines(50, 600, 1200, 1, CLEAR_LINE_COLOR) # north
+        
     ]
     
     run = True
