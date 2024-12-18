@@ -193,8 +193,10 @@ def play_end_logic():
     game_state["down_count"] += 1
 
     if game_state["scrimmage_placement"] < game_state["first_down_line"]:
-        if game_state["first_down_line"] < WEST_ENDZONE:
+        print(f"FDL: {game_state['scrimmage_placement'] - 100}\tWest endzone: {WEST_ENDZONE}")
+        if game_state["scrimmage_placement"] - 100 < WEST_ENDZONE:
             game_state["first_down_line"]= WEST_ENDZONE
+            print(f"Goal Line test: {game_state['first_down_line']}")
             return "new_drive"
         game_state["first_down_line"]= game_state["scrimmage_placement"] - 100
         return "new_drive"
