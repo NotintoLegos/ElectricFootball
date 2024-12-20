@@ -101,14 +101,20 @@ def find_ball_carrier(players):
             return player
     return None
 
-def collision_handler(ball_carrier, d_line, all_players, lines):
+def collision_handler(ball_carrier, all_players, lines):
     # for Out of Bounds logic
     for ob_line in lines[6:8]:
         if ball_carrier.rect.colliderect(ob_line.rect):
             print("play_active:\n\tOut of bounds")
             return ball_carrier.rect.x, ball_carrier.rect.y
+        
+    # TD logic for west endzone
+    if ball_carrier.rect.colliderect(lines[2]):
+        print("Touchdown!!!")
+        return "new_drive"                                      # change to kickoff_logic or score_logic etc 
+
     # for tackling
-    for defender in d_line:
+    for defender in all_players[6:9]:                           # needs to change to "offense" or "defense" for Player.team when every player is added, 
         if ball_carrier.rect.colliderect(defender.rect):
             print("\tBall carrier tackled by defense!")
             return ball_carrier.rect.x, ball_carrier.rect.y
@@ -129,7 +135,8 @@ def collision_handler(ball_carrier, d_line, all_players, lines):
     return None
 
 # -----------each play state logic-------------------
-def new_drive_logic(WIN, lines):
+
+def new_drive_logic(lines):
     global SCRIMMAGE_PLACEMENT
 
     lines[0].x= game_state["scrimmage_placement"]
@@ -154,8 +161,8 @@ def set_of_downs_logic(lines):
         return "new_drive"
     return "play_start"
 
-def play_start_logic(qb, o_line, d_line, lines):
-    reset_position(qb, o_line, d_line, game_state["scrimmage_placement"], game_state["y_value"])  
+def play_start_logic(players, lines):
+    reset_position(players, game_state["scrimmage_placement"], game_state["y_value"])  
     lines[0].rect.x= game_state["scrimmage_placement"]
 
     keys= pygame.key.get_pressed()
@@ -164,21 +171,17 @@ def play_start_logic(qb, o_line, d_line, lines):
         return "play_active"
     return "play_start"
 
-def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
-    ball_carrier= find_ball_carrier(qb+ o_line + d_line)
-    for player in o_line:
-        player.offensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
-    for player in d_line:
-        player.defensive_movement_linemen(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
-    for player in qb:
-        player.qb_movement(VELOCITY_LINEMEN, WIDTH, HEIGHT, 0, 0)
+def play_active_logic(players, lines, elapsed_time):
+    ball_carrier= find_ball_carrier(players)
+    for player in players:
+        player.all_movement(WIDTH, HEIGHT, 0, 0, Player.speed, Player.aim)
 
     if ball_carrier:
         ball_carrier.color= "purple"
         keys= pygame.key.get_pressed()
         ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
     
-    tackle_pos= collision_handler(ball_carrier, d_line, qb+ o_line+ d_line, lines)
+    tackle_pos= collision_handler(ball_carrier, players, lines)
     if tackle_pos:
         print(f"\ttackle_pos: \n\ttackle at {tackle_pos}")
         game_state["scrimmage_placement"] = tackle_pos[0]
@@ -186,7 +189,7 @@ def play_active_logic(qb, o_line, d_line, lines, elapsed_time):
 
         return "play_end"
 
-    draw(WIN, o_line + d_line + qb, elapsed_time, lines, game_state)
+    draw(WIN, players, elapsed_time, lines, game_state)
     return "play_active"
 
 def play_end_logic():
@@ -210,34 +213,33 @@ def main():
 
 # object creation, don't know if I should make a factory since its max of 22 players
 
-    qb= [
-        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", BALL_CARRIER)
+    player_build = [
+        #---------------------------------offense------------------------------------------------------------
+
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "qb", BALL_CARRIER, VELOCITY_LINEMEN, "W"), # change to LB TE QB speed
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "center", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "right_guard", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "left_guard", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "right_tackle", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "left_tackle", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
+
+        #----------------------------------defense-----------------------------------------------------------------
+
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "nose_tackle", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "left_edge", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "right_edge", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W")
     ]
 
-    o_line = [
-        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", NOT_BALL_CARRIER),
-        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", NOT_BALL_CARRIER),
-        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", NOT_BALL_CARRIER),
-        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", NOT_BALL_CARRIER),
-        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", NOT_BALL_CARRIER)
-    ]
-    
-    d_line= [
-        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", NOT_BALL_CARRIER),
-        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", NOT_BALL_CARRIER),
-        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", NOT_BALL_CARRIER)
-
-    ]
 
     lines= [
         Lines(0, 50, SCRIMMAGE_WIDTH, SCRIMMAGE_HEIGHT, "blue"), 
         Lines(0, 50, 3, SCRIMMAGE_HEIGHT, "yellow"),
-        Lines(149, 50, 1, 550, CLEAR_LINE_COLOR), # 2, goal line west   
+        Lines(149, 50, 1, 550, CLEAR_LINE_COLOR), # 2, goal line west, width and height is entire endzone area- for recievers catching ball in endzone
         Lines(1150, 50, 1, 550, CLEAR_LINE_COLOR), #east            
-        Lines(49, 50, 1, 550, CLEAR_LINE_COLOR), # 4, back line of endzone west   
+        Lines(50, 50, 1, 550, CLEAR_LINE_COLOR), # 4, back line of endzone west, line is wide, from edge of screen to where endzone is, for catching out of endzone
         Lines(1250, 50, 1, 550, CLEAR_LINE_COLOR), # east                       
-        Lines(50, 50, 1200, 1, CLEAR_LINE_COLOR), # 6, south sideline    
-        Lines(50, 600, 1200, 1, CLEAR_LINE_COLOR) # north
+        Lines(50, 49, 1300, 1, CLEAR_LINE_COLOR), # 6, south sideline    
+        Lines(50, 600, 1300, 1, CLEAR_LINE_COLOR) # north
         
     ]
     
@@ -256,17 +258,17 @@ def main():
                 break
 
         if game_state== "new_drive":
-            game_state= new_drive_logic(WIN, lines)
+            game_state= new_drive_logic(lines)
 
         elif game_state== "set_of_downs":
             game_state= set_of_downs_logic(lines)
 
         elif game_state== "play_start":
-            draw(WIN, o_line + d_line + qb, elapsed_time, lines, game_state)  # draws current state of game, so not blank screen
-            game_state= play_start_logic(qb, o_line, d_line, lines)
+            draw(WIN, player_build, elapsed_time, lines, game_state)  # draws current state of game, so not blank screen
+            game_state= play_start_logic(player_build, lines)
         
         elif game_state== "play_active":
-            game_state= play_active_logic(qb, o_line, d_line, lines, elapsed_time)
+            game_state= play_active_logic(player_build, lines, elapsed_time)
         
         elif game_state== "play_end":  # end drive will be used for turnover procedure
             game_state= play_end_logic()
