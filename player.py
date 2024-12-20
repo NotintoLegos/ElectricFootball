@@ -29,8 +29,9 @@ class Player:
 
 
     def all_movement(self, width, height, dx, dy, speed, direction):
-
-        if direction== "W":
+        if direction== "STAY":
+            [(-speed, 0), (speed, 0), (0, speed), (0, -speed)]
+        elif direction== "W":
             [(0, 0), (speed, 0), (0, speed), (0, -speed)]
         elif direction== "NW":
             [(0, 0), (speed, 0), (0, speed), (0, -speed)]

@@ -10,10 +10,9 @@ BALL_H, BALL_W= 12, 12
 WIDTH, HEIGHT= 1300, 650
 WEST_ENDZONE, EAST_ENDZONE= 150, 1150
 
-PLAYER_VEL= 2
 VELOCITY_LINEMEN= 1
-
-
+VELOCTIY_MEDIUM= 2
+VELOCITY_FAST= 3
 
 SCRIMMAGE_WIDTH= 3
 SCRIMMAGE_HEIGHT= HEIGHT - 100
@@ -59,41 +58,45 @@ def draw(WIN, players, elapsed_time, lines, game_state):
 
     pygame.display.update()    
     
-def reset_position(qb, o_line, d_line, scrimmage_placement, y_value):
-
+def reset_ball_position(y_value):
+    # keep ball placement within hash marks
     if y_value < 230:
         y_value= 230
     elif y_value > 410:
         y_value= 410
 
-    qb[0].rect.x= scrimmage_placement + 20
-    qb[0].rect.y = y_value
+    # qb[0].rect.x= scrimmage_placement + 20
+    # qb[0].rect.y = y_value
 
-    #offensive 
-    o_line[0].rect.x = scrimmage_placement + 5
-    o_line[0].rect.y = y_value
+    # #offensive 
+    # o_line[0].rect.x = scrimmage_placement + 5
+    # o_line[0].rect.y = y_value
 
-    o_line[1].rect.x = scrimmage_placement + 5
-    o_line[1].rect.y = y_value + 20
+    # o_line[1].rect.x = scrimmage_placement + 5
+    # o_line[1].rect.y = y_value + 20
 
-    o_line[2].rect.x = scrimmage_placement + 5
-    o_line[2].rect.y = y_value - 20
+    # o_line[2].rect.x = scrimmage_placement + 5
+    # o_line[2].rect.y = y_value - 20
 
-    o_line[3].rect.x = scrimmage_placement + 5
-    o_line[3].rect.y = y_value + 40
+    # o_line[3].rect.x = scrimmage_placement + 5
+    # o_line[3].rect.y = y_value + 40
 
-    o_line[4].rect.x = scrimmage_placement + 5
-    o_line[4].rect.y = y_value - 40
+    # o_line[4].rect.x = scrimmage_placement + 5
+    # o_line[4].rect.y = y_value - 40
 
-    # defense
-    d_line[0].rect.x = scrimmage_placement - 12
-    d_line[0].rect.y = y_value
+    # # defense
+    # d_line[0].rect.x = scrimmage_placement - 12
+    # d_line[0].rect.y = y_value
 
-    d_line[1].rect.x = scrimmage_placement - 12
-    d_line[1].rect.y = y_value + 20
+    # d_line[1].rect.x = scrimmage_placement - 12
+    # d_line[1].rect.y = y_value + 20
 
-    d_line[2].rect.x = scrimmage_placement - 12
-    d_line[2].rect.y = y_value - 20
+    # d_line[2].rect.x = scrimmage_placement - 12
+    # d_line[2].rect.y = y_value - 20
+
+def offense_play_call(play_call, players, scrimmage_placement, y_value, direction):
+    if play_call == 1:
+        
 
 def find_ball_carrier(players):
     for player in players:
@@ -161,9 +164,12 @@ def set_of_downs_logic(lines):
         return "new_drive"
     return "play_start"
 
-def play_start_logic(players, lines):
-    reset_position(players, game_state["scrimmage_placement"], game_state["y_value"])  
+def play_setup_logic(lines):
+
+    reset_ball_position(game_state["y_value"])          
     lines[0].rect.x= game_state["scrimmage_placement"]
+
+    # send to choose_play game_state
 
     keys= pygame.key.get_pressed()
     if keys[pygame.K_SPACE]:
@@ -176,10 +182,10 @@ def play_active_logic(players, lines, elapsed_time):
     for player in players:
         player.all_movement(WIDTH, HEIGHT, 0, 0, Player.speed, Player.aim)
 
-    if ball_carrier:
+    if ball_carrier:                                                                            # keep for testing for now
         ball_carrier.color= "purple"
         keys= pygame.key.get_pressed()
-        ball_carrier.move(keys, PLAYER_VEL, WIDTH, HEIGHT)
+        ball_carrier.move(keys, VELOCITY_FAST, WIDTH, HEIGHT)
     
     tackle_pos= collision_handler(ball_carrier, players, lines)
     if tackle_pos:
@@ -214,22 +220,35 @@ def main():
 # object creation, don't know if I should make a factory since its max of 22 players
 
     player_build = [
-        #---------------------------------offense------------------------------------------------------------
+        #---------------------------------team 1 on offense------------------------------------------------------------
 
-        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "qb", BALL_CARRIER, VELOCITY_LINEMEN, "W"), # change to LB TE QB speed
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "qb", BALL_CARRIER, VELOCTIY_MEDIUM, "W"), # change to LB TE QB speed
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "rb", NOT_BALL_CARRIER, VELOCITY_FAST, "W"),
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "fb", NOT_BALL_CARRIER, VELOCTIY_MEDIUM, "W"),
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "te", NOT_BALL_CARRIER, VELOCTIY_MEDIUM, "W"),
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "wr1", NOT_BALL_CARRIER, VELOCITY_FAST, "W"),
+        Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "wr2", NOT_BALL_CARRIER, VELOCITY_FAST, "W"),
         Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "center", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
         Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "right_guard", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
         Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "left_guard", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
         Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "right_tackle", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
         Player(0, 0, BALL_W, BALL_H, OFFENSE_COLOR, "offense", "left_tackle", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
 
-        #----------------------------------defense-----------------------------------------------------------------
+        #----------------------------------team 2 on defense-----------------------------------------------------------------
 
         Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "nose_tackle", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
         Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "left_edge", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
-        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "right_edge", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W")
-    ]
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "right_edge", NOT_BALL_CARRIER, VELOCITY_LINEMEN, "W"),
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "olb1", NOT_BALL_CARRIER, VELOCTIY_MEDIUM, "W"),
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "olb2", NOT_BALL_CARRIER, VELOCTIY_MEDIUM, "W"),
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "ilb1", NOT_BALL_CARRIER, VELOCTIY_MEDIUM, "W"),
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "ilb2", NOT_BALL_CARRIER, VELOCTIY_MEDIUM, "W"),
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "cb1", NOT_BALL_CARRIER, VELOCITY_FAST, "W"),
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "cb2", NOT_BALL_CARRIER, VELOCITY_FAST, "W"),
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "ss", NOT_BALL_CARRIER, VELOCITY_FAST, "W"),
+        Player(0, 0, BALL_W, BALL_H, DEFENSE_COLOR, "defense", "fs", NOT_BALL_CARRIER, VELOCITY_FAST, "W")
 
+    ]
 
     lines= [
         Lines(0, 50, SCRIMMAGE_WIDTH, SCRIMMAGE_HEIGHT, "blue"), 
@@ -265,7 +284,7 @@ def main():
 
         elif game_state== "play_start":
             draw(WIN, player_build, elapsed_time, lines, game_state)  # draws current state of game, so not blank screen
-            game_state= play_start_logic(player_build, lines)
+            game_state= play_setup_logic(lines)
         
         elif game_state== "play_active":
             game_state= play_active_logic(player_build, lines, elapsed_time)
