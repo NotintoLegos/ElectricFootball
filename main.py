@@ -14,6 +14,11 @@ VELOCITY_LINEMEN= 1
 VELOCTIY_MEDIUM= 2
 VELOCITY_FAST= 3
 
+SPACE_BETWEEN= 15                                       # for y value of player start positioning
+ON_LINE= 5                                              # x values
+OFF_LINE= 10
+QB_POS= 20
+
 SCRIMMAGE_WIDTH= 3
 SCRIMMAGE_HEIGHT= HEIGHT - 100
 
@@ -94,9 +99,44 @@ def reset_ball_position(y_value):
     # d_line[2].rect.x = scrimmage_placement - 12
     # d_line[2].rect.y = y_value - 20
 
-def offense_play_call(play_call, players, scrimmage_placement, y_value, direction):
+def offense_play_call(play_call, players, scrimmage_placement, y_value):
     if play_call == 1:
-        
+        players[0].rect.x= scrimmage_placement + QB_POS                     # qb
+        players[0].rect.y= y_value
+        players[0].direction= "STAY"
+        players[1].rect.x= scrimmage_placement + QB_POS                     # rb
+        players[1].rect.y= y_value + SPACE_BETWEEN
+        players[1].direction= "NW"
+        players[2].rect.x= scrimmage_placement + QB_POS                     # fb
+        players[2].rect.y= y_value - SPACE_BETWEEN
+        players[2].direction= "SW"
+        players[3].rect.x= scrimmage_placement + OFF_LINE                     # te
+        players[3].rect.y= y_value + 3*SPACE_BETWEEN
+        players[3].direction= "NW"
+        players[4].rect.x= scrimmage_placement + ON_LINE                     # wr1
+        players[4].rect.y= y_value + 6*SPACE_BETWEEN
+        players[4].direction= "SW"
+        players[5].rect.x= scrimmage_placement + ON_LINE                     # wr2
+        players[5].rect.y= y_value - 5*SPACE_BETWEEN
+        players[5].direction= "W"
+        players[6].rect.x= scrimmage_placement + ON_LINE                     # center
+        players[6].rect.y= y_value
+        players[6].direction= "W"
+        players[7].rect.x= scrimmage_placement + ON_LINE                     # right guard
+        players[7].rect.y= y_value + SPACE_BETWEEN
+        players[7].direction= "NW"
+        players[8].rect.x= scrimmage_placement + ON_LINE                     # left guard
+        players[8].rect.y= y_value - SPACE_BETWEEN
+        players[8].direction= "W"
+        players[9].rect.x= scrimmage_placement + ON_LINE                     # right tackle
+        players[9].rect.y= y_value + 2*SPACE_BETWEEN
+        players[9].direction= "NW"
+        players[10].rect.x= scrimmage_placement + ON_LINE                    # left tackle
+        players[10].rect.y= y_value - 2*SPACE_BETWEEN
+        players[10].direction= "W"
+    
+    return None
+
 
 def find_ball_carrier(players):
     for player in players:
